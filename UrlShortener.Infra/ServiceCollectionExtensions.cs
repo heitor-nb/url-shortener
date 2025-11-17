@@ -53,7 +53,7 @@ public static class Extensions
 
         services.AddSimpleMediator();
 
-        services.AddSingleton<Channel<CreateUrlAccessLogRequest>>();
+        services.AddSingleton(Channel.CreateUnbounded<CreateUrlAccessLogRequest>());
         services.AddHostedService<CreateUrlAccessLogProcessor>();
 
         return services;

@@ -5,6 +5,6 @@ public record UrlDto(
     DateTime CreatedAt,
     Uri LongUrl,
     int UniqueVisitors,
-    (string Day, int Hour)? PeakAccessDateTime,
+    AccessDateTime? PeakAccessDateTime,
     Dictionary<string, int> ReferrersCount
 );

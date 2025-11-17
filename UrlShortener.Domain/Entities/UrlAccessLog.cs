@@ -9,6 +9,7 @@ public class UrlAccessLog : BaseEntity
     )
     {
         Url = url;
+        UrlId = url.Id;
         VisitorId = visitorId;
         Referrer = referrer;
     }

@@ -1,4 +1,5 @@
 using NetDevPack.SimpleMediator;
+using UrlShortener.Application.Exceptions;
 using UrlShortener.Application.Shared.Dtos;
 using UrlShortener.Application.Shared.Mappings;
 using UrlShortener.Application.Shared.Validators;
@@ -34,11 +35,11 @@ public class SignUpHandler : IRequestHandler<SignUpRequest, UserDto>
 
         var existingUser = await _userRepos.GetByEmailAsync(email.Address, cancellationToken);
 
-        if (existingUser != null) throw new ApplicationException("The informed email is already associated with an user.");
+        if (existingUser != null) throw new AppException("The informed email is already associated with an user.");
 
         var name = new Name(request.Name);
 
-        if (!PasswordValidator.Validate(request.Password)) throw new ApplicationException("The informed password is weak.");
+        if (!PasswordValidator.Validate(request.Password)) throw new AppException("The informed password is weak.");
 
         var user = new User(
             name,

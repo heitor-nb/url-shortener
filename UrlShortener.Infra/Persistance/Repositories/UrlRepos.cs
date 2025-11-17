@@ -25,7 +25,10 @@ public class UrlRepos : BaseRepos<Url>, IUrlRepos
         // Filter inside the query -> EF can generate the JOIN automatically.
         // (no need to include Creator)
 
-        var urls = _context.Urls.Where(u => u.Creator.Email.Address.Equals(creatorEmail)).AsQueryable();
+        var urls = _context.Urls
+            .Where(u => u.Creator.Email.Address.Equals(creatorEmail))
+            .Include(u => u.AccessLogs)
+            .AsQueryable();
 
         urls = decresc ? urls.OrderByDescending(u => u.CreateAt) : urls.OrderBy(u => u.CreateAt);
 
@@ -33,19 +36,22 @@ public class UrlRepos : BaseRepos<Url>, IUrlRepos
 
         return urls
             .Skip((pageNumber - 1) * _pageSize)
-            .Take(pageNumber)
+            .Take(_pageSize)
             .ToListAsync(ct);
     }
 
     public Task<Url?> GetByIdAsync(
         int id, 
         CancellationToken ct,
-        bool includeCreator = false
+        bool includeCreator = false,
+        bool includeAccessLogs = false
     )
     {
         var urls = _context.Urls.AsQueryable();
 
         if(includeCreator) urls = urls.Include(u => u.Creator);
+
+        if(includeAccessLogs) urls = urls.Include(u => u.AccessLogs);
 
         return urls.FirstOrDefaultAsync(u => u.Id == id, ct);
     }

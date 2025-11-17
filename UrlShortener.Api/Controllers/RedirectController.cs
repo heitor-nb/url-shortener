@@ -28,38 +28,6 @@ public class RedirectController : ControllerBase
 
     */
 
-    // [HttpGet("{publicId}")]
-    // public async Task<IActionResult> RedirectToLongUrl(
-    //     [FromRoute] string publicId
-    // )
-    // {   
-    //     var result = Guid.TryParse(Request.Cookies["visitor-id"], out var visitorId);
-
-    //     if (!result)
-    //     {
-    //         visitorId = Guid.NewGuid();
-
-    //         Response.Cookies.Append("visitor-id", visitorId.ToString(), new CookieOptions
-    //         {
-    //             HttpOnly = true,
-    //             Secure = true,
-    //             SameSite = SameSiteMode.None
-    //         });
-    //     }
-
-    //     var referrer = Request.Headers.Referer.ToString();
-
-    //     var request = new CreateUrlAccessLogRequest(
-    //         publicId,
-    //         visitorId,
-    //         referrer
-    //     );
-
-    //     var longUrl = await _mediator.Send(request);
-
-    //     return Redirect(longUrl.ToString());
-    // }
-
     [HttpGet("{publicId}")]
     public async Task<IActionResult> RedirectToLongUrl(
         [FromRoute] string publicId

@@ -35,7 +35,7 @@ public class ExceptionHandlingMiddleware
         var statusCode = GetStatusCode(ex);
 
         if(statusCode == StatusCodes.Status500InternalServerError) _logger.LogError(ex, "Unhandled exception");
-        else _logger.LogInformation("Handled error: {message}", ex.Message);
+        else _logger.LogInformation("Handled exception: {message}", ex.Message);
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = statusCode;
@@ -54,7 +54,7 @@ public class ExceptionHandlingMiddleware
         DomainException => StatusCodes.Status400BadRequest,
         NotFoundException => StatusCodes.Status404NotFound,
         UnauthorizedException => StatusCodes.Status401Unauthorized,
-        ApplicationException => StatusCodes.Status400BadRequest,
+        AppException => StatusCodes.Status400BadRequest,
         _ => StatusCodes.Status500InternalServerError
     };
 }

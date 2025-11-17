@@ -5,8 +5,6 @@ namespace UrlShortener.Application.Shared.Mappings;
 
 public static class UrlMappings
 {   
-    private record AccessDateTime(DayOfWeek Day, int Hour);
-
     public static UrlDto ToDto(this Url url) => new(
         url.PublicId!,
         url.CreateAt,
@@ -20,21 +18,19 @@ public static class UrlMappings
         url.PublicId!,
         url.CreateAt,
         url.LongUrl,
-        url.AccessLogs.GroupBy(a => a.VisitorId).Select(g => g.Key).ToList().Count
+        url.UniqueVisitorsCount
     );
 
-    private static (string Day, int Hour)? GetPeakAccessDateTime(
+    private static AccessDateTime? GetPeakAccessDateTime(
         IReadOnlyCollection<UrlAccessLog> accessLogs
     )
-    {      
-        if(accessLogs.Count == 0) return null;
-
+    {
         var accessDateTime = accessLogs
-           .GroupBy(a => new AccessDateTime(a.CreateAt.DayOfWeek, a.CreateAt.Hour))
+           .GroupBy(a => new AccessDateTime(a.CreateAt.DayOfWeek.ToString(), a.CreateAt.Hour))
            .OrderBy(g => g.ToList().Count)
-           .First()
+           .FirstOrDefault()?
            .Key;
 
-        return (accessDateTime.Day.ToString(), accessDateTime.Hour);
+        return accessDateTime;
     }
 }

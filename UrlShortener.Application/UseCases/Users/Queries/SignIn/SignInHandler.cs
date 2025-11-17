@@ -1,4 +1,5 @@
 using NetDevPack.SimpleMediator;
+using UrlShortener.Application.Exceptions;
 using UrlShortener.Domain.Interfaces;
 using UrlShortener.Domain.Interfaces.Repositories;
 
@@ -29,9 +30,9 @@ public class SignInHandler : IRequestHandler<SignInRequest, (string token, strin
 
     public async Task<(string token, string refreshToken)> Handle(SignInRequest request, CancellationToken cancellationToken)
     {
-        var user = await _userRepos.GetByEmailAsync(request.Email, cancellationToken) ?? throw new ApplicationException("Email or password invalids.");
+        var user = await _userRepos.GetByEmailAsync(request.Email, cancellationToken) ?? throw new AppException("Email or password invalids.");
 
-        if (!_passwordHasher.Verify(request.Password, user.Password)) throw new ApplicationException("Email or password invalids.");
+        if (!_passwordHasher.Verify(request.Password, user.Password)) throw new AppException("Email or password invalids.");
 
         var token = _authService.GenerateToken(user);
         var refreshToken = _authService.GenerateRefreshToken(user);

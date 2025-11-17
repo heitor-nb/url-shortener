@@ -14,12 +14,15 @@ namespace UrlShortener.Api.Controllers;
 [Authorize]
 public class UrlController : ControllerBase
 {
+    private readonly ILogger<UrlController> _logger;
     private readonly IMediator _mediator;
 
     public UrlController(
+        ILogger<UrlController> logger,
         IMediator mediator
     )
-    {
+    {   
+        _logger = logger;
         _mediator = mediator;
     }
 

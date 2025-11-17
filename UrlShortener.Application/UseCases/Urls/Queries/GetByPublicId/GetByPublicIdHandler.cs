@@ -28,7 +28,8 @@ public class GetByPublicIdHandler : IRequestHandler<GetByPublicIdRequest, UrlDto
         var url = await _urlRepos.GetByIdAsync(
             id, 
             cancellationToken,
-            includeCreator: true
+            includeCreator: true,
+            includeAccessLogs: true
         ) ?? throw new NotFoundException("The informed public ID is not associated with any URL.");
 
         if (!url.Creator.Email.Address.Equals(request.UserEmail)) throw new UnauthorizedException("Only the creator can inspect the URL metrics.");

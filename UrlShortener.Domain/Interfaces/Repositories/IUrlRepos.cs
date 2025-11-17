@@ -15,6 +15,7 @@ public interface IUrlRepos : IBaseRepos<Url>
     Task<Url?> GetByIdAsync(
         int id, 
         CancellationToken ct,
-        bool includeCreator = false
+        bool includeCreator = false,
+        bool includeAccessLogs = false
     );
 }

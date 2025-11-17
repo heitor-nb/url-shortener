@@ -1,12 +1,13 @@
 using NetDevPack.SimpleMediator;
 using UrlShortener.Application.Exceptions;
+using UrlShortener.Application.Shared;
 using UrlShortener.Domain.Entities;
 using UrlShortener.Domain.Interfaces;
 using UrlShortener.Domain.Interfaces.Repositories;
 
 namespace UrlShortener.Application.UseCases.UrlsAccessesLogs.Commands.Create;
 
-public class CreateUrlAccessLogHandler : IRequestHandler<CreateUrlAccessLogRequest, Uri>
+public class CreateUrlAccessLogHandler : IRequestHandler<CreateUrlAccessLogRequest, VoidResult>
 {
     private readonly IHashids _hashids;
     private readonly IUrlRepos _urlRepos;
@@ -26,13 +27,14 @@ public class CreateUrlAccessLogHandler : IRequestHandler<CreateUrlAccessLogReque
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Uri> Handle(CreateUrlAccessLogRequest request, CancellationToken cancellationToken)
+    public async Task<VoidResult> Handle(CreateUrlAccessLogRequest request, CancellationToken cancellationToken)
     {   
         var urlId = _hashids.Decode(request.UrlPublicId);
 
         var url = await _urlRepos.GetByIdAsync(
             urlId,
-            cancellationToken
+            cancellationToken,
+            includeAccessLogs: true
         ) ?? throw new NotFoundException("The informed public ID is not associated with any URL.");
         
         var urlAccessLog = new UrlAccessLog(
@@ -41,9 +43,11 @@ public class CreateUrlAccessLogHandler : IRequestHandler<CreateUrlAccessLogReque
             request.Referrer
         );
 
+        url.AddAccessLog(urlAccessLog);
+
         await _urlAccessLogRepos.CreateAsync(urlAccessLog, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return url.LongUrl;
+        return VoidResult.Instance;
     }
 }
