@@ -37,7 +37,7 @@ public class Url : BaseEntity
         PublicId = hashids.Encode(Id);
     }
 
-    public void AddAccessLog(UrlAccessLog accessLog)
+    public virtual void AddAccessLog(UrlAccessLog accessLog)
     {
         if(accessLog.UrlId != Id) throw new DomainException("Can not add other url's access log.");
 

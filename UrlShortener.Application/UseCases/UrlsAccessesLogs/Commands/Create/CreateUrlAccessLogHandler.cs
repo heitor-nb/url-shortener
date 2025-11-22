@@ -43,7 +43,7 @@ public class CreateUrlAccessLogHandler : IRequestHandler<CreateUrlAccessLogReque
             request.Referrer
         );
 
-        url.AddAccessLog(urlAccessLog);
+        url.AddAccessLog(urlAccessLog); // Important to update UniqueVisitorsCount
 
         await _urlAccessLogRepos.CreateAsync(urlAccessLog, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);

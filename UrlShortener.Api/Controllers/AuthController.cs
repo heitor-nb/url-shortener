@@ -40,7 +40,7 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Sign in successful" });
     }
 
-    [HttpGet()]
+    [HttpGet]
     public async Task<IActionResult> RefreshToken()
     {
         var refreshToken = Request.Cookies["refresh-token"];

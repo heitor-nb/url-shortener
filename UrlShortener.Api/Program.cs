@@ -8,7 +8,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy => 
         policy
-            .WithOrigins("https://urlshortener.hnbraga.net")
+            .WithOrigins(["http://localhost:5173", "https://urlshortener.hnbraga.net"])
             .AllowAnyHeader()
             .AllowAnyMethod()
     );
@@ -46,7 +46,7 @@ using(var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<UrlShortenerContext>();
 
-    dbContext.Database.EnsureDeleted();
+    // dbContext.Database.EnsureDeleted();
     dbContext.Database.EnsureCreated();
 }
 

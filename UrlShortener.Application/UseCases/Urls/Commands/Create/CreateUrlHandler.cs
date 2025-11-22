@@ -1,6 +1,5 @@
 using NetDevPack.SimpleMediator;
 using UrlShortener.Domain.Entities;
-using UrlShortener.Domain.Interfaces;
 using UrlShortener.Domain.Interfaces.Repositories;
 
 namespace UrlShortener.Application.UseCases.Urls.Commands.Create;
@@ -9,20 +8,14 @@ public class CreateUrlHandler : IRequestHandler<CreateUrlRequest, string>
 {
     private readonly IUserRepos _userRepos;
     private readonly IUrlRepos _urlRepos;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IHashids _hahsids;
 
     public CreateUrlHandler(
         IUserRepos userRepos,
-        IUrlRepos urlRepos,
-        IUnitOfWork unitOfWork,
-        IHashids hashids
+        IUrlRepos urlRepos
     )
     {
         _userRepos = userRepos;
         _urlRepos = urlRepos;
-        _unitOfWork = unitOfWork;
-        _hahsids = hashids;
     }
 
     public async Task<string> Handle(
@@ -36,15 +29,7 @@ public class CreateUrlHandler : IRequestHandler<CreateUrlRequest, string>
             request.LongUrl
         );
 
-        await _urlRepos.CreateAsync(url, cancellationToken);
-        await _unitOfWork.CommitAsync(cancellationToken);
-
-        // SET THE PUBLIC ID:
-        // (analyze this approach)
-
-        url.SetPublicId(_hahsids);
-
-        await _unitOfWork.CommitAsync(cancellationToken);
+        await _urlRepos.CreateAndCommitAsync(url, cancellationToken);
 
         return url.PublicId!;
     }

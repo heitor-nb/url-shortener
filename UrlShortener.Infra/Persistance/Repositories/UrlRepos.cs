@@ -1,17 +1,45 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using UrlShortener.Domain.Entities;
+using UrlShortener.Domain.Interfaces;
 using UrlShortener.Domain.Interfaces.Repositories;
 
 namespace UrlShortener.Infra.Persistance.Repositories;
 
 public class UrlRepos : BaseRepos<Url>, IUrlRepos
-{
+{   
+    private readonly IHashids _hashids;
+    
     public UrlRepos(
         UrlShortenerContext context, 
-        IConfiguration cfg
+        IConfiguration cfg,
+        IHashids hashids
     ) : base(context, cfg)
     {
+        _hashids = hashids;
+    }
+
+    public async Task CreateAndCommitAsync(
+        Url url, 
+        CancellationToken ct)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync(ct);
+
+        await _context.AddAsync(url, ct);
+        await _context.SaveChangesAsync(ct);
+
+        url.SetPublicId(_hashids);
+
+        await _context.SaveChangesAsync(ct);
+
+        /*
+
+        Commit transaction if all commands succeed, transaction will auto-rollback
+        when disposed if either commands fails
+
+        */
+
+        await transaction.CommitAsync(ct);
     }
 
     public Task<List<Url>> GetByCreatorEmailAsync(

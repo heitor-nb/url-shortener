@@ -35,8 +35,8 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenRequest, (string 
         ) ?? throw new NotFoundException("The informed token is not associated with any refresh token.");
 
         var user = await _userRepos.GetByIdAsync(
-            refreshToken.Id,
-            cancellationToken    
+            refreshToken.UserId,
+            cancellationToken
         );
 
         var token = _authService.GenerateToken(user!);
