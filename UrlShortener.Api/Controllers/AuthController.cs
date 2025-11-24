@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using NetDevPack.SimpleMediator;
 using UrlShortener.Application.UseCases.Users.Commands.Queries.SignIn;
+using UrlShortener.Application.UseCases.Users.Commands.RefreshTokens;
 using UrlShortener.Application.UseCases.Users.Commands.SignUp;
-using UrlShortener.Application.UseCases.Users.Queries.RefreshTokens;
 
 namespace UrlShortener.Api.Controllers;
 
@@ -27,7 +27,7 @@ public class AuthController : ControllerBase
     {
         var user = await _mediator.Send(request);
 
-        return Created("/SignIn", user);
+        return Created("/api/v1/Auth/SignIn", user);
     }
 
     [HttpPost]
@@ -40,12 +40,14 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Sign in successful" });
     }
 
-    [HttpGet]
-    public async Task<IActionResult> RefreshToken()
+    [HttpPost]
+    public async Task<IActionResult> RefreshTokens()
     {
         var refreshToken = Request.Cookies["refresh-token"];
 
-        var request = new RefreshTokenRequest(refreshToken ?? string.Empty);
+        if(refreshToken is null) return Unauthorized(new { message = "Missing refresh token." });
+
+        var request = new RefreshTokenRequest(refreshToken);
 
         var (token, newRefreshToken) = await _mediator.Send(request);
 

@@ -2,52 +2,61 @@ using UrlShortener.Api.Middlewares;
 using UrlShortener.Infra;
 using UrlShortener.Infra.Persistance;
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddCors(options =>
+public class Program
 {
-    options.AddPolicy("AllowFrontend", policy => 
-        policy
-            .WithOrigins(["http://localhost:5173", "https://urlshortener.hnbraga.net"])
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-    );
-});
+    private static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddPersistanceServices(builder.Configuration)
-    .AddInfraServices(builder.Configuration);
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+                policy
+                    .WithOrigins([
+                        "http://localhost:5173", 
+                        "https://urlshortener.hnbraga.net"
+                    ])
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+            );
+        });
 
-builder.Services.AddControllers();
+        builder.Services
+            .AddPersistanceServices(builder.Configuration)
+            .AddInfraServices(builder.Configuration);
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+        builder.Services.AddControllers();
 
-var app = builder.Build();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
-app.UseCors("AllowFrontend");
+        var app = builder.Build();
 
-app.UseAuthentication();
-app.UseAuthorization();
+        app.UseCors("AllowFrontend");
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        // app.UseHttpsRedirection();
+
+        app.MapControllers();
+
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<UrlShortenerContext>();
+
+            // dbContext.Database.EnsureDeleted();
+            dbContext.Database.EnsureCreated();
+        }
+
+        app.Run();
+    }
 }
-
-// app.UseHttpsRedirection();
-
-app.MapControllers();
-
-app.UseMiddleware<ExceptionHandlingMiddleware>();
-
-using(var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<UrlShortenerContext>();
-
-    // dbContext.Database.EnsureDeleted();
-    dbContext.Database.EnsureCreated();
-}
-
-app.Run();

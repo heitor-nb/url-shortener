@@ -1,7 +1,8 @@
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using UrlShortener.Application.Exceptions;
-using UrlShortener.Application.UseCases.Users.Queries.RefreshTokens;
+using UrlShortener.Application.UseCases.Users.Commands.RefreshTokens;
+using UrlShortener.Domain.Entities;
 using UrlShortener.Domain.Interfaces;
 using UrlShortener.Domain.Interfaces.Repositories;
 using UrlShortener.Tests.Helpers;
@@ -35,6 +36,48 @@ public class RefreshTokenHandlerHandle
         var ex = await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(request, CancellationToken.None));
 
         Assert.Equal("The informed token is not associated with any refresh token.", ex.Message);
+    }
+
+    [Fact]
+    public async Task ShouldThrowGivenExpiredRefreshToken()
+    {
+        var handler = CreateHandler();
+        var request = new RefreshTokenRequest("refresh-token");
+
+        var oldRefreshToken = EntityFactory.CreateRefreshToken();
+        
+        var type = typeof(RefreshToken);
+        var propInfo = type.GetProperty("ExpiresAt");
+        propInfo?.SetValue(oldRefreshToken, DateTime.UtcNow.AddDays(-1));
+
+        _refreshTokenRepos
+            .GetByTokenAsync(request.Token, Arg.Any<CancellationToken>())
+            .Returns(oldRefreshToken);
+
+        var ex = await Assert.ThrowsAsync<UnauthorizedException>(() => handler.Handle(request, CancellationToken.None));
+
+        Assert.Equal("The informed token is expired or had been revoked.", ex.Message);
+    }
+
+    [Fact]
+    public async Task ShouldThrowGivenRevokedRefreshToken()
+    {
+        var handler = CreateHandler();
+        var request = new RefreshTokenRequest("refresh-token");
+
+        var oldRefreshToken = EntityFactory.CreateRefreshToken();
+
+        var type = typeof(RefreshToken);
+        var propInfo = type.GetProperty("RevokedAt");
+        propInfo?.SetValue(oldRefreshToken, DateTime.UtcNow);
+
+        _refreshTokenRepos
+            .GetByTokenAsync(request.Token, Arg.Any<CancellationToken>())
+            .Returns(oldRefreshToken);
+
+        var ex = await Assert.ThrowsAsync<UnauthorizedException>(() => handler.Handle(request, CancellationToken.None));
+
+        Assert.Equal("The informed token is expired or had been revoked.", ex.Message);
     }
 
     [Fact]

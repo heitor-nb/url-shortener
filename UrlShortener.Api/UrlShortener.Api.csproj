@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <!-- <ItemGroup>
+    <InternalsVisibleTo Include="UrlShortener.Tests.Integration" />
+  </ItemGroup> -->
+
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>

@@ -3,7 +3,7 @@ using UrlShortener.Application.Exceptions;
 using UrlShortener.Domain.Interfaces;
 using UrlShortener.Domain.Interfaces.Repositories;
 
-namespace UrlShortener.Application.UseCases.Users.Queries.RefreshTokens;
+namespace UrlShortener.Application.UseCases.Users.Commands.RefreshTokens;
 
 public class RefreshTokenHandler : IRequestHandler<RefreshTokenRequest, (string token, string refreshToken)>
 {
@@ -33,6 +33,8 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenRequest, (string 
             request.Token,
             cancellationToken
         ) ?? throw new NotFoundException("The informed token is not associated with any refresh token.");
+
+        if(refreshToken.ExpiresAt < DateTime.UtcNow || refreshToken.RevokedAt != null) throw new UnauthorizedException("The informed token is expired or had been revoked.");
 
         var user = await _userRepos.GetByIdAsync(
             refreshToken.UserId,

@@ -40,10 +40,7 @@ public class UrlController : ControllerBase
 
         var shortUrl = await _mediator.Send(request);
 
-        return Created("/GetById", new
-        {
-            shortUrl
-        });
+        return Created("/api/v1/GetById", new { shortUrl });
     }
 
     [HttpGet]
@@ -77,10 +74,7 @@ public class UrlController : ControllerBase
 
         var url = await _mediator.Send(request);
 
-        return Ok(new
-        {
-            url
-        });
+        return Ok(new { url });
     }
 }
 

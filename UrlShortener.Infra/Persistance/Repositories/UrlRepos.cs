@@ -21,7 +21,8 @@ public class UrlRepos : BaseRepos<Url>, IUrlRepos
 
     public async Task CreateAndCommitAsync(
         Url url, 
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         await using var transaction = await _context.Database.BeginTransactionAsync(ct);
 
