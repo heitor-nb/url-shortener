@@ -1,0 +1,10 @@
+.env
+.git
+.gitignore
+
+**/bin/
+**/obj/
+
+*.md
+
+docker-compose.yml

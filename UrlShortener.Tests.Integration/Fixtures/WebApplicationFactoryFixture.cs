@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using UrlShortener.Api;
 using UrlShortener.Infra.Persistance;
 using UrlShortener.Tests.Integration.Helpers;
 

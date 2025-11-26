@@ -1,6 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using UrlShortener.Api.Middlewares;
 using UrlShortener.Infra;
 using UrlShortener.Infra.Persistance;
+
+namespace UrlShortener.Api;
 
 public class Program
 {
@@ -13,8 +16,8 @@ public class Program
             options.AddPolicy("AllowFrontend", policy =>
                 policy
                     .WithOrigins([
-                        "http://localhost:5173", 
-                        "https://urlshortener.hnbraga.net"
+                        "http://localhost:5173",
+                    "https://urlshortener.hnbraga.net"
                     ])
                     .AllowAnyHeader()
                     .AllowAnyMethod()
@@ -53,8 +56,7 @@ public class Program
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<UrlShortenerContext>();
 
-            // dbContext.Database.EnsureDeleted();
-            dbContext.Database.EnsureCreated();
+            dbContext.Database.Migrate();
         }
 
         app.Run();
