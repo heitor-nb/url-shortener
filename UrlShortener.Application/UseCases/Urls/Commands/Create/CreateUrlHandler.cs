@@ -1,4 +1,6 @@
 using NetDevPack.SimpleMediator;
+using UrlShortener.Application.Exceptions;
+using UrlShortener.Application.Shared.Validators;
 using UrlShortener.Domain.Entities;
 using UrlShortener.Domain.Interfaces.Repositories;
 
@@ -22,11 +24,13 @@ public class CreateUrlHandler : IRequestHandler<CreateUrlRequest, string>
         CreateUrlRequest request,
         CancellationToken cancellationToken)
     {
-        var creator = await _userRepos.GetByEmailAsync(request.CreatorEmail, cancellationToken);
+        var creator = await _userRepos.GetByEmailAsync(request.CreatorEmail, cancellationToken) ?? throw new NotFoundException("The informed creator email is not associated with any user.");
+
+        var uri = UrlValidator.Validate(request.LongUrl) ?? throw new AppException("The informed long URL is not valid.");
 
         var url = new Url(
-            creator!, // The email is extracted from the token, thus it belongs to an user.
-            request.LongUrl
+            creator,
+            uri
         );
 
         await _urlRepos.CreateAndCommitAsync(url, cancellationToken);

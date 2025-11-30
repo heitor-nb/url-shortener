@@ -28,7 +28,7 @@ public class UrlController : ControllerBase
 
     [HttpPost("Create")]
     public async Task<IActionResult> Create(
-        [FromBody] Uri longUrl
+        [FromBody] string longUrl
     )
     {   
         var creatorEmail = User.FindFirst(c => c.Type == ClaimTypes.Email)?.Value ?? string.Empty;

@@ -17,10 +17,11 @@ public class Program
                 policy
                     .WithOrigins([
                         "http://localhost:5173",
-                    "https://urlshortener.hnbraga.net"
+                        "https://urlshortener.hnbraga.net"
                     ])
-                    .AllowAnyHeader()
                     .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials()
             );
         });
 

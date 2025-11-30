@@ -1,4 +1,6 @@
 using NSubstitute;
+using NSubstitute.ReturnsExtensions;
+using UrlShortener.Application.Exceptions;
 using UrlShortener.Application.UseCases.Urls.Commands.Create;
 using UrlShortener.Domain.Entities;
 using UrlShortener.Domain.Interfaces;
@@ -22,7 +24,7 @@ public class CreateUrlHandlerTests
     {   
         var handler = CreateHandler();
         var creator = EntityFactory.CreateUser();
-        var request = new CreateUrlRequest(creator.Email.Address, new("http://teste.com"));
+        var request = new CreateUrlRequest(creator.Email.Address, "http://test.com");
 
         _userRepos
             .GetByEmailAsync(creator.Email.Address, Arg.Any<CancellationToken>())
@@ -54,6 +56,25 @@ public class CreateUrlHandlerTests
 
         Assert.NotNull(publicId);
         Assert.Equal(capturedUrl!.PublicId, publicId);
+    }
+
+    [Fact]
+    public async Task ShouldThrowGivenCreatorDoesNotExist()
+    {
+        var handler = CreateHandler();
+        var invalidCreatorEmail = "test@email.com";
+        var request = new CreateUrlRequest(invalidCreatorEmail, "http://test.com");
+
+        _userRepos
+            .GetByEmailAsync(invalidCreatorEmail, Arg.Any<CancellationToken>())
+            .ReturnsNull();
+
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(request, CancellationToken.None));
+
+        Assert.Equal("The informed creator email is not associated with any user.", ex.Message);
+
+        await _userRepos.Received(1).GetByEmailAsync(invalidCreatorEmail, Arg.Any<CancellationToken>());
+        await _urlRepos.DidNotReceive().CreateAndCommitAsync(Arg.Any<Url>(), Arg.Any<CancellationToken>());
     }
 }
 

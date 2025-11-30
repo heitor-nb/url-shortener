@@ -41,10 +41,6 @@ docker compose up -d
 - Dockerfile + Docker Compose
 - Deploy em **VM Oracle Cloud** com **Nginx** como proxy reverso
 
-## Demonstração
-
-*(gif aqui)*
-
 ## Motivação
 
 Este projeto foi criado com o objetivo de aplicar e demonstrar:

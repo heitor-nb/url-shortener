@@ -4,5 +4,5 @@ namespace UrlShortener.Application.UseCases.Urls.Commands.Create;
 
 public record CreateUrlRequest(
     string CreatorEmail,
-    Uri LongUrl
+    string LongUrl
 ) : IRequest<string>;

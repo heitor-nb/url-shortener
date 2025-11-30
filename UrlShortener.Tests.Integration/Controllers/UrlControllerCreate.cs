@@ -62,7 +62,7 @@ public class UrlControllerCreate : IClassFixture<WebApplicationFactoryFixture>, 
 
         var response = await _client.PostAsJsonAsync(_url, longUrl);
 
-        // status code + cookies
+        // status code + headers
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.Equal("/api/v1/GetById", response.Headers.Location?.ToString());
@@ -104,20 +104,44 @@ public class UrlControllerCreate : IClassFixture<WebApplicationFactoryFixture>, 
         Assert.Empty(urls);
     }
 
-    [Fact]
-    public async Task ShouldReturnBadRequestGivenInvalidModel()
-    {
-        var invalidBody = new { };
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("a")]
+    [InlineData("test.com")]
+    public async Task ShouldReturnBadRequestGivenInvalidUrl(
+        string url
+    )
+    {   
+        AsyncServiceScope scope;
+        User user; 
 
-        var response = await _client.PostAsJsonAsync(_url, invalidBody);
+        await using (scope = _factory.Services.CreateAsyncScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<UrlShortenerContext>();
+            var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+
+            user = new User(
+                new("test"),
+                new("test@mail.com"),
+                passwordHasher.Hash("Password123!")
+            );
+
+            await context.Users.AddAsync(user);
+            await context.SaveChangesAsync();
+        }
+
+        var response = await _client.PostAsJsonAsync(_url, url);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
-        await using var scope = _factory.Services.CreateAsyncScope();
-        var context = scope.ServiceProvider.GetRequiredService<UrlShortenerContext>();
+        await using (scope = _factory.Services.CreateAsyncScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<UrlShortenerContext>();
 
-        var urls = await context.Urls.ToListAsync();
+            var urls = await context.Urls.ToListAsync();
 
-        Assert.Empty(urls);
+            Assert.Empty(urls);
+        }
     }
 }
